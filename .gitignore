@@ -1,0 +1,8 @@
+.env
+.venv/
+reviews/
+normalized.json
+conversations.json
+__pycache__/
+*.pyc
+.DS_Store
