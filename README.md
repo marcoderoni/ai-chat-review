@@ -63,9 +63,24 @@ You can override it:
 - `--prompt-file my_prompt.txt`
 - if you pass nothing and you're in an interactive terminal, it asks you.
 
-## Attachments
-Best-effort: attachment names/references are extracted and cited in the text,
-but the binaries are not re-sent to the target model in v1.
+## Attachments (PDF and more)
+
+Attach files to the chat before sending it for review with `--attach` (repeatable).
+The file is extracted as **text** (not base64): cheap on tokens and works with every
+provider, not only multimodal ones. Supported: `pdf, txt, md, csv, json, docx`.
+
+```bash
+python3 cli.py review --source claude --input conversations.json --which 0 \
+  --provider gemini --attach dpa.pdf --attach annex.docx
+```
+
+Unsupported or unreadable files (e.g. scanned image-only PDFs — no OCR in v1) are
+reported and skipped, never fatal. Attachment references found inside an export
+(names/ids) are still cited in the chat text, but their binaries are not auto-loaded —
+pass the actual file with `--attach`.
+
+Note: there is **no length cap** on the chat sent to the model — long conversations
+go through in full (you spend the tokens you need).
 
 ## Layout
 ```

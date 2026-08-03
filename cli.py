@@ -19,6 +19,7 @@ import time
 from ingest import get_adapter
 from providers import get_provider
 from review import review as run_review
+from attachments import build_block
 from schema import dump_json
 
 MANIFEST_CSV = "_manifest.csv"
@@ -85,6 +86,7 @@ def cmd_review(args):
     provider = get_provider(args.provider, args.model)
     os.makedirs(args.out, exist_ok=True)
     system_override = _resolve_prompt(args)
+    attach_block = build_block(args.attach)
 
     manifest = _load_manifest(args.out) if args.resume else {}
     selected = _select(convs, args.which)
@@ -101,7 +103,7 @@ def cmd_review(args):
                "provider": args.provider, "status": "", "output_file": "", "error": "",
                "ts": time.strftime("%Y-%m-%d %H:%M:%S")}
         try:
-            opinion = run_review(c, provider, lang=args.lang, system_override=system_override)
+            opinion = run_review(c, provider, lang=args.lang, system_override=system_override, extra_context=attach_block)
             fn = os.path.join(args.out, f"{i:03d}_{_slug(c.title)}__review_{args.provider}.md")
             with open(fn, "w", encoding="utf-8") as f:
                 f.write(f"# Review by {args.provider} of \"{c.title}\"\n\n{opinion}\n")
@@ -150,6 +152,8 @@ def main():
     pr.add_argument("--lang", default="en", help="language of the opinion (en|it|nl|fr)")
     pr.add_argument("--prompt", default=None, help="custom review prompt, inline")
     pr.add_argument("--prompt-file", default=None, help="file containing the custom review prompt")
+    pr.add_argument("--attach", action="append",
+                    help="attach a file (pdf/txt/md/csv/json/docx); extracted as text. Repeatable.")
     pr.add_argument("--resume", action="store_true", help="skip chats already 'done' in the manifest")
     pr.add_argument("--out", default="reviews")
     pr.set_defaults(func=cmd_review)

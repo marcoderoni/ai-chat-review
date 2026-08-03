@@ -29,7 +29,7 @@ def get_provider(name: str, model: str | None = None):
     if name == "anthropic":
         return AnthropicProvider(model or os.getenv("ANTHROPIC_MODEL", "claude-sonnet-5"))
     if name == "gemini":
-        return GeminiProvider(model or os.getenv("GEMINI_MODEL", "gemini-2.5-pro"))
+        return GeminiProvider(model or os.getenv("GEMINI_MODEL", "gemini-2.5-flash"))
     if name in _OPENAI_COMPAT:
         base, env, default_model, verified = _OPENAI_COMPAT[name]
         if not verified:

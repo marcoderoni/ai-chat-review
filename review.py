@@ -25,12 +25,15 @@ USER_TMPL = (
 
 
 def build_prompt(conv: Conversation, lang: str = "en", system_override: str | None = None,
-                 max_chars: int = 120_000):
+                 extra_context: str = "", max_chars=None):
     system = system_override if system_override else DEFAULT_SYSTEM.format(lang=_LANG.get(lang, "English"))
     user = USER_TMPL.format(title=conv.title, source=conv.source, body=conv.to_text(max_chars=max_chars))
+    if extra_context:
+        user += extra_context
     return system, user
 
 
-def review(conv: Conversation, provider, lang: str = "en", system_override: str | None = None) -> str:
-    system, user = build_prompt(conv, lang=lang, system_override=system_override)
+def review(conv: Conversation, provider, lang: str = "en", system_override: str | None = None,
+           extra_context: str = "") -> str:
+    system, user = build_prompt(conv, lang=lang, system_override=system_override, extra_context=extra_context)
     return provider.complete(system, user)
